@@ -1,8 +1,10 @@
-export type Artwork = { id: string; title: string; thumb: string };
+export type Artwork = { id: number; title: string; author: string; image: string };
 
 export const artworks: Artwork[] = [
-  { id: "a1", title: "Aurora",    thumb: "https://picsum.photos/seed/a1/600/400" },
-  { id: "a2", title: "Neon City", thumb: "https://picsum.photos/seed/a2/600/400" },
-  { id: "a3", title: "Sea Mist",  thumb: "https://picsum.photos/seed/a3/600/400" },
-  { id: "a4", title: "Orbit",     thumb: "https://picsum.photos/seed/a4/600/400" }
+  { id: 1, title: "Forest Lines", author: "ArtDrop", image: "https://picsum.photos/seed/ad1/900/600" },
+  { id: 2, title: "Neon Echo",   author: "ArtDrop", image: "https://picsum.photos/seed/ad2/900/600" },
+  { id: 3, title: "Granite Sky",  author: "ArtDrop", image: "https://picsum.photos/seed/ad3/900/600" },
+  { id: 4, title: "Glass Wave",   author: "ArtDrop", image: "https://picsum.photos/seed/ad4/900/600" },
+  { id: 5, title: "Aurora Mesh",  author: "ArtDrop", image: "https://picsum.photos/seed/ad5/900/600" },
+  { id: 6, title: "Signal Dust",  author: "ArtDrop", image: "https://picsum.photos/seed/ad6/900/600" }
 ];
