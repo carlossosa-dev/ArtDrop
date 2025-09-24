@@ -1,45 +1,34 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import * as React from "react";
+import ArtworkCard from "../components/ArtworkCard";
 import { artworks } from "../data/artworks";
-import { useFavorites } from "../hooks/useFavorites";
 
-type Art = typeof artworks[number];
+type DataArtwork = {
+  id: string;
+  title: string;
+  image: string;
+  priceUSD: number;
+  category: "Wallpapers" | "Posters" | "Illustration";
+  author?: string;
+};
 
-function Card({ art }: { art: Art }) {
-  const { add, remove, isFav } = useFavorites();
-  const favored = isFav(art.id);
-
-  return (
-    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-3 flex flex-col gap-3">
-      <div className="aspect-square overflow-hidden rounded-xl bg-neutral-800">
-        <img src={art.image} alt={art.title} className="w-full h-full object-cover transition-transform hover:scale-105" />
-      </div>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-white font-semibold">{art.title}</p>
-        </div>
-        <button
-          onClick={() => (favored ? remove(art.id) : add(art))}
-          className={`px-3 py-1 rounded-full text-sm border transition ${favored ? "bg-white text-black border-white" : "text-white border-neutral-600 hover:border-white"}`}
-        >
-          {favored ? "♥ Saved" : "♡ Favorite"}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-const CATEGORIES = ["All", "Wallpapers", "Posters", "Illustration"];
+const CATEGORIES = ["All", "Wallpapers", "Posters", "Illustration"] as const;
+type Category = (typeof CATEGORIES)[number];
 
 export default function GalleryPage() {
-  const [search, setSearch] = useState("");
-  const [cat, setCat] = useState("All");
+  const [search, setSearch] = React.useState<string>("");
+  const [cat, setCat] = React.useState<Category>("All");
 
-  const filtered = useMemo(() => {
-    return artworks.filter((a) => {
+  const filtered = React.useMemo<DataArtwork[]>(() => {
+    const q = search.toLowerCase();
+
+    // Coerce once, safely, then use
+    const src: DataArtwork[] = artworks as unknown as DataArtwork[];
+
+    return src.filter((a) => {
       const matchCat = cat === "All" || a.category === cat;
-      const matchSearch = a.title.toLowerCase().includes(search.toLowerCase());
+      const matchSearch = a.title.toLowerCase().includes(q);
       return matchCat && matchSearch;
     });
   }, [search, cat]);
@@ -54,7 +43,7 @@ export default function GalleryPage() {
         <div className="mb-6">
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
             placeholder="Search"
             className="w-full rounded-full bg-neutral-900 border border-neutral-700 px-5 py-3 text-white placeholder-neutral-500 outline-none"
           />
@@ -64,9 +53,12 @@ export default function GalleryPage() {
           {CATEGORIES.map((c) => (
             <button
               key={c}
+              type="button"
               onClick={() => setCat(c)}
               className={`px-4 py-1.5 rounded-full border text-sm transition ${
-                cat === c ? "bg-white text-black border-white" : "text-white border-neutral-700 hover:border-white"
+                cat === c
+                  ? "bg-white text-black border-white"
+                  : "text-white border-neutral-700 hover:border-white"
               }`}
             >
               {c}
@@ -75,8 +67,11 @@ export default function GalleryPage() {
         </div>
 
         <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {filtered.map((art) => (
-            <Card key={art.id} art={art} />
+          {filtered.map((a) => (
+            <ArtworkCard
+              key={a.id}
+              art={{ id: String(a.id), title: a.title, image: a.image, priceUSD: a.priceUSD }}
+            />
           ))}
         </section>
       </div>
