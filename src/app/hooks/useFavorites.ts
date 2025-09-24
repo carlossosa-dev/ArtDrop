@@ -1,34 +1,53 @@
 "use client";
+import * as React from "react";
+import { artworks } from "../data/artworks";
 
-import { useEffect, useState } from "react";
-import type { Artwork } from "../data/artworks";
+export type Artwork = typeof artworks[number];
 
-const KEY = "artdrop:favorites:v1";
+type FavoritesState = {
+  list: Artwork[];
+  add: (id: string) => void;
+  remove: (id: string) => void;
+  isFav: (id: string) => boolean;
+};
 
-function useFavorites() {
-  const [favorites, setFavorites] = useState<Artwork[]>([]);
+const STORAGE_KEY = "favorites.v1";
 
-  useEffect(() => {
+export default function useFavorites(): FavoritesState {
+  const [ids, setIds] = React.useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
     try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) setFavorites(JSON.parse(raw));
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const parsed = raw ? (JSON.parse(raw) as string[]) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
     } catch {}
+  }, [ids]);
+
+  const byId = React.useMemo(() => {
+    const pairs = artworks.map(a => [String(a.id), a] as const);
+    return new Map<string, Artwork>(pairs);
   }, []);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(favorites));
-    } catch {}
-  }, [favorites]);
+  const list = React.useMemo(
+    () => ids.map(id => byId.get(id)).filter(Boolean) as Artwork[],
+    [ids, byId]
+  );
 
-  const isFav = (id: string) => favorites.some(a => a.id === id);
-  const add = (art: Artwork) =>
-    setFavorites(prev => (prev.some(a => a.id === art.id) ? prev : [...prev, art]));
+  const add = (id: string) =>
+    setIds(prev => (prev.includes(id) ? prev : [...prev, id]));
+
   const remove = (id: string) =>
-    setFavorites(prev => prev.filter(a => a.id !== id));
+    setIds(prev => prev.filter(x => x !== id));
 
-  return { favorites, add, remove, isFav };
+  const isFav = (id: string) => ids.includes(id);
+
+  return { list, add, remove, isFav };
 }
-
-export default useFavorites;
-export { useFavorites };
