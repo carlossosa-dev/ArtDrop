@@ -2,53 +2,48 @@
 
 import Link from "next/link";
 import useFavorites from "../hooks/useFavorites";
-import { artworks } from "../data/artworks";
-
-type Art = typeof artworks[number];
-
-function getItems(o: unknown): Art[] {
-  const a = o as { favorites?: Art[]; list?: Art[] };
-  return a.favorites ?? a.list ?? [];
-}
-
-function getRemove(o: unknown): (id: string) => void {
-  const a = o as { remove?: (id: string) => void };
-  return a.remove ?? (() => {});
-}
 
 export default function FavoritesPage() {
-  const fav = useFavorites();
-  const items = getItems(fav);
-  const remove = getRemove(fav);
-  const hasItems = items.length > 0;
+  const { list, remove } = useFavorites();
+  const has = list.length > 0;
 
   return (
     <main className="min-h-screen bg-black">
       <section className="mx-auto max-w-6xl px-4 py-10">
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-black tracking-wide text-white">Your Favorites</h1>
-          <p className="mt-2 text-neutral-400">Keep track of the digital artworks you love most</p>
-        </header>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-white">Favorites</h1>
+          <Link
+            href="/gallery"
+            className="rounded-md border border-neutral-700 px-3 py-2 text-sm text-white"
+          >
+            Back to Gallery
+          </Link>
+        </div>
 
-        {!hasItems ? (
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 p-6 text-center">
-            <p className="text-neutral-300">
-              You haven’t saved anything yet. Go to the{" "}
-              <Link href="/gallery" className="underline underline-offset-4">Gallery</Link>{" "}
-              and tap ♡ Favorite on pieces you like.
-            </p>
-          </div>
-        ) : (
-          <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {items.map((art) => (
-              <div key={art.id} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-3 flex flex-col gap-3">
-                <div className="aspect-square overflow-hidden rounded-xl bg-neutral-800">
-                  <img src={art.image} alt={art.title} className="w-full h-full object-cover" />
+        {!has && (
+          <p className="text-neutral-300">
+            No favorites yet. Go to the gallery and add some.
+          </p>
+        )}
+
+        {has && (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+            {list.map((art) => (
+              <div
+                key={String(art.id)}
+                className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900"
+              >
+                <div className="aspect-square overflow-hidden">
+                  <img
+                    src={art.image}
+                    alt={art.title}
+                    className="h-full w-full object-cover"
+                  />
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between p-3">
                   <p className="text-white font-semibold">{art.title}</p>
                   <button
-                    onClick={() => remove(art.id)}
+                    onClick={() => remove(String(art.id))}
                     className="px-3 py-1 rounded-full text-sm border text-white border-neutral-600 hover:border-white transition"
                   >
                     Remove
@@ -56,7 +51,7 @@ export default function FavoritesPage() {
                 </div>
               </div>
             ))}
-          </section>
+          </div>
         )}
       </section>
     </main>
