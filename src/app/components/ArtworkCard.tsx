@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-
 "use client";
 
 export type CardArtwork = {
@@ -36,7 +34,7 @@ export default function ArtworkCard({
     </div>
   );
 }
-=======
+
 "use client";
 
 export type CardArtwork = {
@@ -106,4 +104,4 @@ export default function ArtworkCard({
     </div>
   );
 }
->>>>>>> a9668f5 (deploy: UI polish)
+
